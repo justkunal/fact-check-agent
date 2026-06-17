@@ -65,48 +65,38 @@ def extract_text_from_pdf(pdf_file):
     return text
 
 
-# ----------------------------
+# --------------------------------------------------
 # CLAIM EXTRACTION
-# ----------------------------
+# --------------------------------------------------
 
-def evaluate_all_claims(claims):
-
-    claims_context = []
-
-    for claim in claims:
-
-        web_context = search_web(claim)
-
-        claims_context.append({
-            "claim": claim,
-            "web_context": web_context
-        })
+def extract_claims(text):
 
     prompt = f"""
 You are a professional fact checker.
 
-For each claim classify as:
+Extract all factual and verifiable claims.
 
-Verified
-Inaccurate
-False
+Focus on:
+- statistics
+- percentages
+- dates
+- company facts
+- financial figures
+- technical specifications
+- historical facts
 
-Return ONLY JSON.
+Return ONLY a valid JSON array.
 
-Format:
+Example:
 
 [
- {{
-   "claim":"",
-   "status":"",
-   "explanation":"",
-   "real_fact":""
- }}
+  "Google was founded in 1998.",
+  "India's population is 1.4 billion."
 ]
 
-Claims:
+TEXT:
 
-{json.dumps(claims_context)}
+{text}
 """
 
     try:
@@ -117,14 +107,15 @@ Claims:
         cleaned = cleaned.replace("```", "")
         cleaned = cleaned.strip()
 
-        return json.loads(cleaned)
+        claims = json.loads(cleaned)
+
+        return claims
 
     except Exception as e:
 
-        st.error(f"Verification Error: {e}")
+        st.error(f"Claim Extraction Error: {e}")
 
         return []
-
 
 # ----------------------------
 # WEB SEARCH
