@@ -61,7 +61,25 @@ def extract_claims(text):
 
 def search_web(query):
     try:
-        results = DDGS().text(query, max_results=3)
+        def search_web(query):
+    try:
+        results = list(DDGS().text(query, max_results=5))
+
+        st.write("Search Results:", results)
+
+        if not results:
+            return ""
+
+        return "\n".join([
+            f"Title: {r.get('title','')}\n"
+            f"Source: {r.get('href','')}\n"
+            f"Snippet: {r.get('body','')}"
+            for r in results
+        ])
+
+    except Exception as e:
+        st.error(f"Search Error: {e}")
+        return ""
         context = "\n".join([f"Source: {res.get('href')}\nSnippet: {res.get('body')}" for res in results])
         return context
     except Exception as e:
