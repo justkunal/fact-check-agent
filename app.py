@@ -43,7 +43,7 @@ def extract_claims(text):
     Text:
     {text}
     """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     try:
         response = model.generate_content(prompt)
         # Clean up response to ensure it's valid JSON
