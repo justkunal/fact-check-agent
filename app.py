@@ -84,7 +84,7 @@ def evaluate_claim(claim, web_context):
     
     Respond ONLY with the JSON object, formatted strictly as JSON without markdown blocks.
     """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     try:
         response = model.generate_content(prompt)
         cleaned_response = response.text.strip()
