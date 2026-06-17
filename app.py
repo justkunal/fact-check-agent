@@ -1,6 +1,5 @@
 import streamlit as st
 import PyPDF2
-import pandas as pd
 from duckduckgo_search import DDGS
 from groq import Groq
 import json
@@ -355,83 +354,4 @@ if st.button("Start Fact-Checking"):
                             )
                         )
 
-                        verified_count = sum(
-    1 for r in results_data
-    if r.get("status") == "Verified"
-)
-
-inaccurate_count = sum(
-    1 for r in results_data
-    if r.get("status") == "Inaccurate"
-)
-
-false_count = sum(
-    1 for r in results_data
-    if r.get("status") == "False"
-)
-
-total_claims = len(results_data)
-
-accuracy_score = round(
-    (verified_count / total_claims) * 100,
-    1
-) if total_claims > 0 else 0
-
-col1, col2, col3, col4 = st.columns(4)
-
-col1.metric("Total Claims", total_claims)
-col2.metric("Verified", verified_count)
-col3.metric("Inaccurate", inaccurate_count)
-col4.metric("False", false_count)
-
-st.metric(
-    "Truth Score",
-    f"{accuracy_score}%"
-)
-
-chart_data = pd.DataFrame({
-    "Status": [
-        "Verified",
-        "Inaccurate",
-        "False"
-    ],
-    "Count": [
-        verified_count,
-        inaccurate_count,
-        false_count
-    ]
-})
-
-st.subheader("Claim Distribution")
-
-st.bar_chart(
-    chart_data.set_index("Status")
-)
-
-
-{
-  "claim":"",
-  "status":"",
-  "confidence":95,
-  "explanation":"",
-  "real_fact":""
-}
-st.progress(
-    result["confidence"] / 100
-)
-
-st.write(
-    f"Confidence: {result['confidence']}%"
-)
-
-if status == "False":
-    risk = "High"
-
-elif status == "Inaccurate":
-    risk = "Medium"
-
-else:
-    risk = "Low"
-
-st.write(f"Risk Level: {risk}")    
-
+                        
