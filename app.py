@@ -1,7 +1,7 @@
 import streamlit as st
 import PyPDF2
-import google.generativeai as genai
 from duckduckgo_search import DDGS
+from groq import Groq
 import json
 import os
 
@@ -24,15 +24,28 @@ st.write(
 # GEMINI API SETUP
 # ----------------------------
 
-api_key = os.getenv("GEMINI_API_KEY")
+groq_api_key = os.getenv("GROQ_API_KEY")
 
-if not api_key:
-    st.error("GEMINI_API_KEY not found in Streamlit Secrets.")
+if not groq_api_key:
+    st.error("GROQ_API_KEY not found in Streamlit Secrets.")
     st.stop()
 
-genai.configure(api_key=api_key)
+client = Groq(api_key=groq_api_key)
 
-MODEL_NAME = "gemini-2.0-flash"
+def ask_llm(prompt):
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0
+    )
+
+    return response.choices[0].message.content
 
 # ----------------------------
 # PDF TEXT EXTRACTION
@@ -56,55 +69,59 @@ def extract_text_from_pdf(pdf_file):
 # CLAIM EXTRACTION
 # ----------------------------
 
-def extract_claims(text):
+def evaluate_all_claims(claims):
+
+    claims_context = []
+
+    for claim in claims:
+
+        web_context = search_web(claim)
+
+        claims_context.append({
+            "claim": claim,
+            "web_context": web_context
+        })
 
     prompt = f"""
-You are a professional fact-checker.
+You are a professional fact checker.
 
-Extract ALL verifiable claims.
+For each claim classify as:
 
-Focus on:
-- statistics
-- percentages
-- dates
-- revenues
-- company facts
-- technical specifications
-- historical claims
+Verified
+Inaccurate
+False
 
-Return ONLY a JSON array.
+Return ONLY JSON.
 
-Example:
+Format:
 
 [
-  "Google was founded in 1998.",
-  "India's population is 1.4 billion."
+ {{
+   "claim":"",
+   "status":"",
+   "explanation":"",
+   "real_fact":""
+ }}
 ]
 
-TEXT:
+Claims:
 
-{text}
+{json.dumps(claims_context)}
 """
 
     try:
 
-        model = genai.GenerativeModel(MODEL_NAME)
+        response_text = ask_llm(prompt)
 
-        response = model.generate_content(prompt)
-
-        cleaned = response.text.strip()
-
-        cleaned = cleaned.replace("```json", "")
+        cleaned = response_text.replace("```json", "")
         cleaned = cleaned.replace("```", "")
         cleaned = cleaned.strip()
 
-        claims = json.loads(cleaned)
-
-        return claims
+        return json.loads(cleaned)
 
     except Exception as e:
 
-        st.error(f"Claim Extraction Error: {e}")
+        st.error(f"Verification Error: {e}")
 
         return []
 
@@ -158,21 +175,19 @@ def evaluate_all_claims(claims):
 
         web_context = search_web(claim)
 
-        claims_context.append(
-            {
-                "claim": claim,
-                "web_context": web_context
-            }
-        )
+        claims_context.append({
+            "claim": claim,
+            "web_context": web_context
+        })
 
     prompt = f"""
-You are an expert fact checker.
+You are a professional fact checker.
 
-For EACH claim determine:
+For each claim classify as:
 
-1. Verified
-2. Inaccurate
-3. False
+Verified
+Inaccurate
+False
 
 Return ONLY JSON.
 
@@ -194,13 +209,9 @@ Claims:
 
     try:
 
-        model = genai.GenerativeModel(MODEL_NAME)
+        response_text = ask_llm(prompt)
 
-        response = model.generate_content(prompt)
-
-        cleaned = response.text.strip()
-
-        cleaned = cleaned.replace("```json", "")
+        cleaned = response_text.replace("```json", "")
         cleaned = cleaned.replace("```", "")
         cleaned = cleaned.strip()
 
