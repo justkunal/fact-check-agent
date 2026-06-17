@@ -21,7 +21,7 @@ st.write(
 )
 
 # ----------------------------
-# GEMINI API SETUP
+#GROK AI SETUP
 # ----------------------------
 
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -72,29 +72,61 @@ def extract_text_from_pdf(pdf_file):
 def extract_claims(text):
 
     prompt = f"""
-You are a professional fact checker.
+You are a professional claim extraction engine.
 
-Extract all factual and verifiable claims.
+Your task is to identify EVERY factual claim that can potentially be verified using external sources.
 
-Focus on:
-- statistics
-- percentages
-- dates
-- company facts
-- financial figures
-- technical specifications
-- historical facts
+Extract ALL claims including:
 
-Return ONLY a valid JSON array.
+• Statistics
+• Percentages
+• Dates
+• Years
+• Population figures
+• Financial figures
+• Revenue numbers
+• Growth metrics
+• Company facts
+• Product specifications
+• Technical specifications
+• Scientific facts
+• Medical facts
+• Historical facts
+• Geographical facts
+• Sports facts
+• Awards and rankings
+• Government and policy claims
+• Comparative claims
+• Market size claims
+• Performance claims
 
-Example:
+Rules:
 
+1. Do NOT skip any factual statement.
+2. Extract one claim per list item.
+3. Preserve exact wording.
+4. Do NOT merge claims.
+5. Do NOT summarize.
+6. Ignore opinions.
+7. Ignore recommendations.
+8. Ignore marketing language unless it contains a factual statement.
+9. If a sentence contains multiple factual claims, split them.
+
+Examples:
+
+Input:
+Google was founded in 1998 and has over 180,000 employees.
+
+Output:
 [
   "Google was founded in 1998.",
-  "India's population is 1.4 billion."
+  "Google has over 180,000 employees."
 ]
 
+Return ONLY valid JSON.
+
 TEXT:
+
 
 {text}
 """
