@@ -100,6 +100,7 @@ Extract ALL claims including:
 • Comparative claims
 • Market size claims
 • Performance claims
+• Current data
 
 Rules:
 
@@ -112,6 +113,12 @@ Rules:
 7. Ignore recommendations.
 8. Ignore marketing language unless it contains a factual statement.
 9. If a sentence contains multiple factual claims, split them.
+10. Never assume a claim refers to the future unless the year is greater than the current year.
+11. If evidence is missing, use well-established public knowledge.
+12. Never say "cannot be verified because it is in the future" unless the date is actually in the future.
+13. For incorrect claims, provide the corrected fact.
+14. Give a specific explanation, not a generic one.
+15. Evaluate EVERY claim.
 
 Examples:
 
