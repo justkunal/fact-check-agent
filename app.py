@@ -1,5 +1,6 @@
 import streamlit as st
 import PyPDF2
+import pandas as pd
 from duckduckgo_search import DDGS
 from groq import Groq
 import json
@@ -196,7 +197,9 @@ def evaluate_all_claims(claims):
 
     for claim in claims:
 
-        web_context = search_web(claim)
+        web_context = search_web(
+           f'"{claim}" facts'
+        )
 
         claims_context.append({
             "claim": claim,
@@ -204,22 +207,32 @@ def evaluate_all_claims(claims):
         })
 
     prompt = f"""
-You are a professional fact checker.
+You are an expert fact-checker.
 
-For each claim classify as:
+For each claim:
 
-Verified
-Inaccurate
-False
+1. Analyze the supplied evidence.
+2. If evidence is available, verify against it.
+3. If evidence is unavailable, use well-established world knowledge.
 
-Return ONLY JSON.
+Classification:
 
-Format:
+Verified:
+Claim is supported.
+
+Inaccurate:
+Claim is partially correct or outdated.
+
+False:
+Claim is factually incorrect.
+
+Return JSON:
 
 [
  {{
    "claim":"",
    "status":"",
+   "confidence":95,
    "explanation":"",
    "real_fact":""
  }}
@@ -228,6 +241,8 @@ Format:
 Claims:
 
 {json.dumps(claims_context)}
+
+Return ONLY JSON.
 """
 
     try:
@@ -297,6 +312,9 @@ if st.button("Start Fact-Checking"):
                     results_data = evaluate_all_claims(
                         claims
                     )
+                    
+
+                    
 
                 st.subheader("Verification Report")
 
