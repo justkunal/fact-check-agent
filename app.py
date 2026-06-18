@@ -2,7 +2,7 @@ import streamlit as st
 import PyPDF2
 import pandas as pd
 from duckduckgo_search import DDGS
-from groq import Groq
+from openai import OpenAI
 import json
 import os
 
@@ -22,21 +22,24 @@ st.write(
 )
 
 # ----------------------------
-#GROK AI SETUP
+#DEEPSEEK AI SETUP
 # ----------------------------
 
-groq_api_key = os.getenv("GROQ_API_KEY")
+deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
 
-if not groq_api_key:
-    st.error("GROQ_API_KEY not found in Streamlit Secrets.")
+if not deepseek_api_key:
+    st.error("DEEPSEEK_API_KEY not found.")
     st.stop()
 
-client = Groq(api_key=groq_api_key)
+client = OpenAI(
+    api_key=deepseek_api_key,
+    base_url="https://api.deepseek.com"
+)
 
 def ask_llm(prompt):
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="deepseek-chat",
         messages=[
             {
                 "role": "user",

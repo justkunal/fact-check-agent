@@ -1,4 +1,5 @@
 streamlit
 PyPDF2
 duckduckgo-search
-groq
+openai
+pandas
